@@ -5,7 +5,7 @@ import boto3
 import botocore
 import dagster._check as check
 from dagster import PipesClient
-from dagster._annotations import experimental
+from dagster._annotations import experimental, public
 from dagster._core.definitions.resource_annotation import TreatAsResourceParam
 from dagster._core.errors import DagsterExecutionInterruptedError
 from dagster._core.execution.context.compute import OpExecutionContext
@@ -71,6 +71,7 @@ class PipesECSClient(PipesClient, TreatAsResourceParam):
     def _is_dagster_maintained(cls) -> bool:
         return True
 
+    @public
     def run(
         self,
         *,
@@ -80,7 +81,12 @@ class PipesECSClient(PipesClient, TreatAsResourceParam):
     ) -> PipesClientCompletedInvocation:
         """Start a ECS task, enriched with the pipes protocol.
 
-        See also: `AWS API Documentation <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RunTask.html>`_
+        Args:
+            context (OpExecutionContext): The Dagster op context.
+            extras (Optional[Dict[str, Any]]): Additional information to pass to the external process.
+            **params: Keyword arguments to pass to the `boto3` ECS client.
+                See `boto3 API Documentation <https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ecs/client/run_task.html>`_
+                for more info.
 
         Returns:
             PipesClientCompletedInvocation: Wrapper containing results reported by the external
