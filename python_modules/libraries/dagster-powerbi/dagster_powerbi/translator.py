@@ -6,10 +6,6 @@ from typing import Any, Dict, Generic, Mapping, Sequence
 from dagster import _check as check
 from dagster._core.definitions.asset_key import AssetKey
 from dagster._core.definitions.asset_spec import AssetSpec
-from dagster._core.definitions.cacheable_assets import (
-    CACHED_ASSET_ID_KEY,
-    CACHED_ASSET_METADATA_KEY,
-)
 from dagster._record import record
 from typing_extensions import TypeVar
 
@@ -154,10 +150,6 @@ class DagsterPowerBITranslator(DagsterTranslator[PowerBIContentData, PowerBIWork
             key=self.get_dashboard_asset_key(data),
             tags={"dagster/storage_kind": "powerbi"},
             deps=report_keys,
-            metadata={
-                CACHED_ASSET_ID_KEY: f"{POWERBI_PREFIX}{self.workspace_data.workspace_id}",
-                CACHED_ASSET_METADATA_KEY: data.to_cached_data(),
-            },
         )
 
     def get_report_asset_key(self, data: PowerBIContentData) -> AssetKey:
@@ -172,10 +164,6 @@ class DagsterPowerBITranslator(DagsterTranslator[PowerBIContentData, PowerBIWork
             key=self.get_report_asset_key(data),
             deps=[dataset_key] if dataset_key else None,
             tags={"dagster/storage_kind": "powerbi"},
-            metadata={
-                CACHED_ASSET_ID_KEY: f"{POWERBI_PREFIX}{self.workspace_data.workspace_id}",
-                CACHED_ASSET_METADATA_KEY: data.to_cached_data(),
-            },
         )
 
     def get_semantic_model_asset_key(self, data: PowerBIContentData) -> AssetKey:
@@ -192,10 +180,6 @@ class DagsterPowerBITranslator(DagsterTranslator[PowerBIContentData, PowerBIWork
             key=self.get_semantic_model_asset_key(data),
             tags={"dagster/storage_kind": "powerbi"},
             deps=source_keys,
-            metadata={
-                CACHED_ASSET_ID_KEY: f"{POWERBI_PREFIX}{self.workspace_data.workspace_id}",
-                CACHED_ASSET_METADATA_KEY: data.to_cached_data(),
-            },
         )
 
     def get_data_source_asset_key(self, data: PowerBIContentData) -> AssetKey:
@@ -214,8 +198,4 @@ class DagsterPowerBITranslator(DagsterTranslator[PowerBIContentData, PowerBIWork
         return AssetSpec(
             key=self.get_data_source_asset_key(data),
             tags={"dagster/storage_kind": "powerbi"},
-            metadata={
-                CACHED_ASSET_ID_KEY: f"{POWERBI_PREFIX}{self.workspace_data.workspace_id}",
-                CACHED_ASSET_METADATA_KEY: data.to_cached_data(),
-            },
         )
