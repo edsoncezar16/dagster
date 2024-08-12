@@ -539,7 +539,7 @@ class MaterializeOnMissingRule(AutoMaterializeRule, NamedTuple("_MaterializeOnMi
             ),
             # we keep track of the handled subset instead of the unhandled subset because new
             # partitions may spontaneously jump into existence at any time
-            extra_state=handled_subset,
+            structured_cursor=handled_subset,
         )
 
 
@@ -971,7 +971,7 @@ class SkipOnNotAllParentsUpdatedSinceCronRule(
             true_slice=context.asset_graph_view.get_asset_slice_from_valid_subset(
                 context.legacy_context.candidate_subset - all_parents_updated_subset
             ),
-            extra_state=list(updated_subsets_by_key.values()),
+            structured_cursor=list(updated_subsets_by_key.values()),
         )
 
 
