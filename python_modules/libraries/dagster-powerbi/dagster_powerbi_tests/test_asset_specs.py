@@ -37,7 +37,7 @@ def test_translator_dashboard_spec(workspace_data_api_mocks: None, workspace_id:
     )
     cacheable_asset = resource.build_assets()[0]
     data = cacheable_asset.compute_cacheable_data()
-    all_assets = cacheable_asset.build_assets(data)
+    all_assets = cacheable_asset.build_definitions(data)
 
     # 1 dashboard, 1 report, 1 semantic model, 2 data sources
     assert len(all_assets) == 5
@@ -78,7 +78,7 @@ def test_refreshable_semantic_model(
     )
     cacheable_asset = resource.build_assets(enable_refresh_semantic_models=True)[0]
     data = cacheable_asset.compute_cacheable_data()
-    all_assets = cacheable_asset.build_assets(data)
+    all_assets = cacheable_asset.build_definitions(data)
 
     # 1 dashboard, 1 report, 1 semantic model, 2 data sources
     assert len(all_assets) == 5
