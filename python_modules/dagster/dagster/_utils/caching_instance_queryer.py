@@ -17,7 +17,7 @@ from typing import (
 
 import dagster._check as check
 from dagster._core.definitions.asset_graph_subset import AssetGraphSubset
-from dagster._core.definitions.asset_subset import AssetSubset, ValidAssetSubset
+from dagster._core.definitions.asset_subset import AssetSubset
 from dagster._core.definitions.base_asset_graph import BaseAssetGraph
 from dagster._core.definitions.data_version import DataVersion, extract_data_version_from_entry
 from dagster._core.definitions.events import AssetKey, AssetKeyPartitionKey
@@ -146,7 +146,7 @@ class CachingInstanceQueryer(DynamicPartitionsStore):
         ) | cache_value.deserialize_in_progress_partition_subsets(partitions_def)
 
     @cached_method
-    def get_materialized_asset_subset(self, *, asset_key: AssetKey) -> ValidAssetSubset:
+    def get_materialized_asset_subset(self, *, asset_key: AssetKey) -> AssetSubset:
         """Returns an AssetSubset representing the subset of the asset that has been materialized."""
         partitions_def = self.asset_graph.get(asset_key).partitions_def
         if partitions_def:
@@ -159,10 +159,10 @@ class CachingInstanceQueryer(DynamicPartitionsStore):
             value = self.asset_partition_has_materialization_or_observation(
                 AssetKeyPartitionKey(asset_key)
             )
-        return ValidAssetSubset(key=asset_key, value=value)
+        return AssetSubset(key=asset_key, value=value)
 
     @cached_method
-    def get_in_progress_asset_subset(self, *, asset_key: AssetKey) -> ValidAssetSubset:
+    def get_in_progress_asset_subset(self, *, asset_key: AssetKey) -> AssetSubset:
         """Returns an AssetSubset representing the subset of the asset that is currently in progress."""
         partitions_def = self.asset_graph.get(asset_key).partitions_def
         if partitions_def:
@@ -186,10 +186,10 @@ class CachingInstanceQueryer(DynamicPartitionsStore):
                 dagster_run = self.instance.get_run_by_id(planned_materialization_info.run_id)
                 value = dagster_run is not None and dagster_run.status in IN_PROGRESS_RUN_STATUSES
 
-        return ValidAssetSubset(key=asset_key, value=value)
+        return AssetSubset(key=asset_key, value=value)
 
     @cached_method
-    def get_failed_asset_subset(self, *, asset_key: AssetKey) -> ValidAssetSubset:
+    def get_failed_asset_subset(self, *, asset_key: AssetKey) -> AssetSubset:
         """Returns an AssetSubset representing the subset of the asset that failed to be
         materialized its most recent run.
         """
@@ -212,7 +212,7 @@ class CachingInstanceQueryer(DynamicPartitionsStore):
 
                 value = dagster_run is not None and dagster_run.status == DagsterRunStatus.FAILURE
 
-        return ValidAssetSubset(key=asset_key, value=value)
+        return AssetSubset(key=asset_key, value=value)
 
     ####################
     # ASSET RECORDS / STORAGE IDS
@@ -884,7 +884,7 @@ class CachingInstanceQueryer(DynamicPartitionsStore):
     @cached_method
     def get_asset_subset_updated_after_cursor(
         self, *, asset_key: AssetKey, after_cursor: Optional[int]
-    ) -> ValidAssetSubset:
+    ) -> AssetSubset:
         """Returns the AssetSubset of the given asset that has been updated after the given cursor."""
         partitions_def = self.asset_graph.get(asset_key).partitions_def
         updated_asset_partitions = self.get_asset_partitions_updated_after_cursor(
@@ -915,7 +915,7 @@ class CachingInstanceQueryer(DynamicPartitionsStore):
     @cached_method
     def get_asset_subset_updated_after_time(
         self, *, asset_key: AssetKey, after_time: datetime
-    ) -> ValidAssetSubset:
+    ) -> AssetSubset:
         """Returns the AssetSubset of the given asset that has been updated after the given time."""
         partitions_def = self.asset_graph.get(asset_key).partitions_def
 

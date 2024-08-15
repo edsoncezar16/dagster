@@ -12,7 +12,10 @@ from dagster import (
     PartitionsDefinition,
     StaticPartitionsDefinition,
 )
-from dagster._core.definitions.asset_subset import AssetSubset, ValidAssetSubset
+from dagster._core.definitions.asset_subset import AssetSubset
+from dagster._core.definitions.declarative_automation.legacy.valid_asset_subset import (
+    ValidAssetSubset,
+)
 from dagster._core.definitions.events import AssetKeyPartitionKey
 from dagster._core.definitions.partition import AllPartitionsSubset, DefaultPartitionsSubset
 from dagster._core.definitions.time_window_partitions import (
@@ -80,14 +83,18 @@ def test_operations(
 ) -> None:
     key = AssetKey(["foo"])
     subset_a = (
-        AssetSubset.all(key, partitions_def, DagsterInstance.ephemeral(), datetime.datetime.now())
+        ValidAssetSubset.all(
+            key, partitions_def, DagsterInstance.ephemeral(), datetime.datetime.now()
+        )
         if first_all
-        else AssetSubset.empty(key, partitions_def)
+        else ValidAssetSubset.empty(key, partitions_def)
     )
     subset_b = (
-        AssetSubset.all(key, partitions_def, DagsterInstance.ephemeral(), datetime.datetime.now())
+        ValidAssetSubset.all(
+            key, partitions_def, DagsterInstance.ephemeral(), datetime.datetime.now()
+        )
         if second_all
-        else AssetSubset.empty(key, partitions_def)
+        else ValidAssetSubset.empty(key, partitions_def)
     )
 
     actual_asset_partitions = operation(subset_a, subset_b).asset_partitions

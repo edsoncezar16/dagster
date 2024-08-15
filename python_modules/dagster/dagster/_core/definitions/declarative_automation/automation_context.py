@@ -9,7 +9,7 @@ from dagster._core.asset_graph_view.asset_graph_view import (
     TemporalContext,
 )
 from dagster._core.definitions.asset_key import AssetKey
-from dagster._core.definitions.asset_subset import ValidAssetSubset
+from dagster._core.definitions.asset_subset import AssetSubset
 from dagster._core.definitions.declarative_automation.automation_condition import (
     AutomationCondition,
     AutomationResult,
@@ -50,7 +50,7 @@ class NonAGVInstanceInterface:
 
     def get_asset_subset_updated_after_time(
         self, *, asset_key: AssetKey, after_time: datetime.datetime
-    ) -> ValidAssetSubset:
+    ) -> AssetSubset:
         return self._queryer.get_asset_subset_updated_after_time(
             asset_key=asset_key, after_time=after_time
         )
@@ -151,7 +151,7 @@ class AutomationContext(NamedTuple):
                 child_condition.get_unique_id(
                     parent_unique_id=self.condition_unique_id, index=child_index
                 ),
-                candidate_slice.convert_to_valid_asset_subset(),
+                candidate_slice,
             ),
             non_agv_instance_interface=self.non_agv_instance_interface,
             is_legacy_evaluation=self.is_legacy_evaluation,
