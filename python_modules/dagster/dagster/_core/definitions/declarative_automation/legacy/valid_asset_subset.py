@@ -1,9 +1,14 @@
 import datetime
 import operator
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
-from dagster._core.definitions.asset_subset import AssetSubset, AssetSubsetSerializer
+from dagster._core.definitions.asset_key import AssetKey
+from dagster._core.definitions.asset_subset import (
+    AssetGraphEntitySubsetValue,
+    AssetSubset,
+    AssetSubsetSerializer,
+)
 from dagster._core.definitions.partition import PartitionsDefinition
 from dagster._serdes.serdes import whitelist_for_serdes
 
@@ -12,10 +17,14 @@ if TYPE_CHECKING:
 
 
 @whitelist_for_serdes(serializer=AssetSubsetSerializer)
+@dataclass(frozen=True)
 class ValidAssetSubset(AssetSubset):
     """Legacy construct used for doing operations over AssetSubsets that are known to be valid. This
     functionality is subsumed by AssetSlice.
     """
+
+    key: AssetKey
+    value: AssetGraphEntitySubsetValue
 
     def inverse(
         self,
