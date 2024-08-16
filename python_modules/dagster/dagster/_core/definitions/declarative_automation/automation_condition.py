@@ -383,7 +383,7 @@ class AutomationResult(NamedTuple):
 
     @property
     def true_subset(self) -> AssetSubset:
-        return self.true_slice.convert_to_asset_subset()
+        return self.true_slice.convert_to_serializable_subset()
 
     @staticmethod
     def _create(
@@ -489,9 +489,9 @@ def _create_node_cursor(
     extra_state: Optional[Union[AssetSubset, Sequence[AssetSubset]]],
 ) -> AutomationConditionNodeCursor:
     return AutomationConditionNodeCursor(
-        true_subset=true_slice.convert_to_asset_subset(),
+        true_subset=true_slice.convert_to_serializable_subset(),
         candidate_subset=get_serializable_candidate_subset(
-            candidate_slice.convert_to_asset_subset()
+            candidate_slice.convert_to_serializable_subset()
         ),
         subsets_with_metadata=subsets_with_metadata,
         extra_state=extra_state,
@@ -509,9 +509,9 @@ def _create_serializable_evaluation(
 ) -> AutomationConditionEvaluation:
     return AutomationConditionEvaluation(
         condition_snapshot=context.condition.get_snapshot(context.condition_unique_id),
-        true_subset=true_slice.convert_to_asset_subset(),
+        true_subset=true_slice.convert_to_serializable_subset(),
         candidate_subset=get_serializable_candidate_subset(
-            candidate_slice.convert_to_asset_subset()
+            candidate_slice.convert_to_serializable_subset()
         ),
         subsets_with_metadata=subsets_with_metadata,
         start_timestamp=start_timestamp,
@@ -535,8 +535,8 @@ def _compute_value_hash(
     components: Sequence[str] = [
         condition_unique_id,
         condition_description,
-        _compute_subset_value_str(true_slice.convert_to_asset_subset()),
-        _compute_subset_value_str(candidate_slice.convert_to_asset_subset()),
+        _compute_subset_value_str(true_slice.convert_to_serializable_subset()),
+        _compute_subset_value_str(candidate_slice.convert_to_serializable_subset()),
         *(_compute_subset_with_metadata_value_str(swm) for swm in subsets_with_metadata),
         *(child_result.value_hash for child_result in child_results),
     ]
