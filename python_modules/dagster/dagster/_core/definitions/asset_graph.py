@@ -28,6 +28,7 @@ from dagster._core.definitions.resolved_asset_deps import ResolvedAssetDependenc
 from dagster._core.definitions.source_asset import SourceAsset
 from dagster._core.definitions.utils import DEFAULT_GROUP_NAME
 from dagster._core.selector.subset_selector import generate_asset_dep_graph
+from dagster._core.storage.tags import KIND_PREFIX
 from dagster._utils.warnings import disable_dagster_warnings
 
 
@@ -77,7 +78,10 @@ class AssetNode(BaseAssetNode):
 
     @property
     def tags(self) -> Mapping[str, str]:
-        return self._spec.tags
+        return {
+            **self._spec.tags,
+            **{f"{KIND_PREFIX}{kind}": "true" for kind in self._spec.kinds or []},
+        }
 
     @property
     def owners(self) -> Sequence[str]:
