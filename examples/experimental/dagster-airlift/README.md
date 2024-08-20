@@ -32,19 +32,23 @@ Airlift depends on the the availability of Airflow’s REST API. Airflow’s RES
 
 ## Peering
 
-The first step is to peer the Dagster Deployment and the Airflow instance.
+The first step is to peer the Dagster code location and the Airflow instance, which will represent each of your Airflow DAGs in Dagster.
 
-To do this you need to install airlift and make it available in your Dagster deployment.
+You will first need to install `dagster-airlift`:
 
 ```bash
 pip install uv
 uv pip install dagster-airlift[core]
 ```
 
-At that point you create a `Definitions` object using `build_defs_from_airflow_instance`.
+Next, you should create a `Definitions` object using `build_defs_from_airflow_instance`.
 
 ```python
-from dagster_airlift.core import AirflowInstance, build_defs_from_airflow_instance
+from dagster_airlift.core import (
+    AirflowInstance,
+    BasicAuthBackend,
+    build_defs_from_airflow_instance,
+)
 
 defs = build_defs_from_airflow_instance(
     airflow_instance=AirflowInstance(
@@ -59,14 +63,14 @@ defs = build_defs_from_airflow_instance(
 )
 ```
 
-Note: When a code server is loaded for the first time it will query the target Airflow REST API. Subsequent process loads (e.g. a run worker loading) will used a cached response. If you want Dagster to pick up new DAGs, you will need restart the code server.
-
-An MWAA auth backend is available at `dagster_airlift.mwaa.auth.MwaaSessionAuthBackend`
+An MWAA auth backend is available at `dagster_airlift.mwaa.auth.MwaaSessionAuthBackend`.
 
 This function creates:
 
 - An asset representing each DAG. This asset is “materialized” whenever a DAG run completes.
-- A sensor that polls the Airflow instance for operational information. This is what keeps the DAG execution history up to date. It must be on to get timely information.
+- A sensor that polls the Airflow instance for operational information. This is what keeps the DAG execution history up to date. The sensor must be on in order to update execution status.
+
+_Note: When the code location loads, Dagster will query the Airflow REST API in order to build a representation of your DAGs. In order for Dagster to reflect changes to your DAGs, you will need to reload your code location._
 
 ### Peering to multiple instances
 
@@ -103,11 +107,11 @@ defs = Definitions.merge(
 
 ## Observing Assets
 
-The next step is to observe the assets that are orchestrated from Airflow. In order to do that we must create the corresponding definitions in the Dagster deployment.
+The next step is to observe the assets that are orchestrated from Airflow. In order to do that we must create the corresponding definitions in the Dagster code location.
 
 We have an included example at `examples/experimental/dagster-airlift/examples/dbt-example`. We suggest mimicking the structure of this project as a starting point.
 
-To add definitions that an Airlift-enabled deployment will observed, you need to use the `orchestrated_defs` argument to `build_defs_from_airflow_instance`
+To add definitions corresponding to Airflow tasks, you need to use the `orchestrated_defs` argument to `build_defs_from_airflow_instance`
 
 _Note: This also accepts an object of type `Definitions`. We have recently added a function, `Definitions.merge`, which allows users to combine and compose `Definitions` objects, which this utilizes._
 
@@ -178,3 +182,45 @@ This name gets parsed and set corresponding tags (`airlift/dag_id` and `airlift/
 Once this is done you should be able to reload your definitions and the see the full dbt project. Once you run the corresponding Airflow Dag and task, each task completion will corresponding to an asset materialization in any asset that is orchestrated by that task.
 
 _Note: There will be some delay as this process is managed by a Dagster sensor that polls the Airflow instance for task history. This is every 30 seconds by default (you can reduce down to one second via the `minimum_interval_seconds` argument to `sensor`), so there will be some delay._
+
+## Migrating Assets
+
+Once you have created corresponding definitions in Dagster to your Airflow tasks, you can begin to selectively migrate execution of some or all of these assets to Dagster.
+
+To begin migration on a DAG, first you will need a file to track migration progress. In your Airflow DAG directory, create a `migration_state` folder, and in it create a yaml file with the same name as your DAG. The included example at `examples/experimental/dagster-airlift/examples/dbt-example/airflow_dags/migration_state` can be used as reference.
+
+Given a DAG named `load_lakehouse` with two tasks, `load_iris` and `load_dry_bean`, `migration_state/load_lakehouse.yaml` should look like the following:
+```yaml
+tasks:
+  load_iris:
+    migrated: False
+  load_dry_bean:
+    migrated: False
+```
+
+Next, modify your Airflow DAG to make it aware of the migration status:
+```python
+dag = ...
+...
+
+from dagster_airlift.in_airflow import mark_as_dagster_migrating
+from dagster_airlift.migration_state import load_migration_state_from_yaml
+from pathlib import Path
+
+mark_as_dagster_migrating(
+    global_vars=globals(),
+    migration_state=load_migration_state_from_yaml(
+        Path(__file__).parent / "migration_state"
+    ),
+)
+```
+
+The DAG will now display its migration state in the Airflow UI.
+
+### Migrating individual tasks
+
+Each task can be migrated by first ensuring it has an associated set of one or more assets in Dagster, provided to `orchestrated_defs`, and then by toggling the `migrated: False` status to `migrated: True` in the `migration_state` YAML file.
+
+Any task marked as migrated will use the `DagsterOperator` when executed as part of the DAG. This operator will use the Dagster GraphQL API to initiate a Dagster run of the assets corresponding to the task.
+
+The migration file acts as the source of truth for migration status. A task which has been migrated can be toggled back to run in Airflow (for example, if a bug in implementation was encountered) simply by editing the file to `migrated: False`.
