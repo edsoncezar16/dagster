@@ -96,7 +96,7 @@ from dagster._core.errors import DagsterInvalidDefinitionError
 from dagster._core.snap import JobSnapshot
 from dagster._core.snap.mode import ResourceDefSnap, build_resource_def_snap
 from dagster._core.storage.io_manager import IOManagerDefinition
-from dagster._core.storage.tags import COMPUTE_KIND_TAG
+from dagster._core.storage.tags import COMPUTE_KIND_TAG, KIND_PREFIX
 from dagster._core.utils import is_valid_email
 from dagster._record import IHaveNew, record, record_custom
 from dagster._serdes import whitelist_for_serdes
@@ -1448,6 +1448,10 @@ def external_asset_nodes_from_defs(
             ):
                 partition_mappings[pk] = partition_mapping
 
+        tags_with_kinds = {
+            **asset_node.tags,
+            **{f"{KIND_PREFIX}{kind}": "" for kind in asset_node.kinds or []},
+        }
         external_asset_nodes.append(
             ExternalAssetNode(
                 asset_key=key,
@@ -1477,7 +1481,7 @@ def external_asset_nodes_from_defs(
                 ),
                 output_name=output_name,
                 metadata=asset_node.metadata,
-                tags=asset_node.tags,
+                tags=tags_with_kinds,
                 group_name=asset_node.group_name,
                 freshness_policy=asset_node.freshness_policy,
                 is_source=asset_node.is_external,
