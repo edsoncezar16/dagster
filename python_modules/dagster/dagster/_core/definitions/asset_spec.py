@@ -157,6 +157,12 @@ class AssetSpec(
         if kinds is not None and len(kinds) > 2:
             raise DagsterInvalidDefinitionError("Assets can have at most two kinds currently.")
 
+        storage_kind = (tags or {}).get("dagster/storage_kind")
+        if kinds is not None and storage_kind is not None and storage_kind not in kinds:
+            raise DagsterInvalidDefinitionError(
+                f"If specifying dagster/storage_kind={storage_kind} and kinds, {storage_kind} must be in the list of kinds"
+            )
+
         return super().__new__(
             cls,
             key=key,

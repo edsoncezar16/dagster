@@ -2628,6 +2628,28 @@ class TestAssetAwareEventLog(ExecutingGraphQLContextTestMatrix):
         second_kinds_key = result.data["assetNodeOrError"]
         assert set(second_kinds_key["kinds"]) == {"python"}
 
+        result = execute_dagster_graphql(
+            graphql_context,
+            GET_KINDS,
+            variables={
+                "assetKey": {"path": ["third_kinds_key"]},
+            },
+        )
+
+        third_kinds_key = result.data["assetNodeOrError"]
+        assert set(third_kinds_key["kinds"]) == {"python", "snowflake"}
+
+        result = execute_dagster_graphql(
+            graphql_context,
+            GET_KINDS,
+            variables={
+                "assetKey": {"path": ["fourth_kinds_key"]},
+            },
+        )
+
+        fourth_kinds_key = result.data["assetNodeOrError"]
+        assert set(fourth_kinds_key["kinds"]) == {"python"}
+
     def test_has_asset_checks(self, graphql_context: WorkspaceRequestContext):
         result = execute_dagster_graphql(graphql_context, HAS_ASSET_CHECKS)
 

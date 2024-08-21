@@ -1215,6 +1215,9 @@ class GrapheneAssetNode(graphene.ObjectType):
 
     def resolve_kinds(self, _graphene_info: ResolveInfo) -> Sequence[str]:
         if self._external_asset_node.compute_kind:
+            storage_kind = (self._external_asset_node.tags or {}).get("dagster/storage_kind")
+            if storage_kind:
+                return [self._external_asset_node.compute_kind, storage_kind]
             return [self._external_asset_node.compute_kind]
 
         return [
