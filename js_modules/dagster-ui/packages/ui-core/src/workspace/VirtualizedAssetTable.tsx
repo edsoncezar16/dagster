@@ -5,7 +5,6 @@ import {VirtualizedAssetCatalogHeader, VirtualizedAssetRow} from './VirtualizedA
 import {buildRepoAddress} from './buildRepoAddress';
 import {AssetTableFragment} from '../assets/types/AssetTableFragment.types';
 import {AssetViewType} from '../assets/useAssetView';
-import {DefinitionTag} from '../graphql/types';
 import {StaticSetFilter} from '../ui/BaseFilters/useStaticSetFilter';
 import {Container, Inner} from '../ui/VirtualizedTable';
 
@@ -22,8 +21,7 @@ interface Props {
   onRefresh: () => void;
   showRepoColumn: boolean;
   view?: AssetViewType;
-  computeKindFilter?: StaticSetFilter<string>;
-  storageKindFilter?: StaticSetFilter<DefinitionTag>;
+  kindFilter?: StaticSetFilter<string>;
 }
 
 export const VirtualizedAssetTable = (props: Props) => {
@@ -36,8 +34,7 @@ export const VirtualizedAssetTable = (props: Props) => {
     onRefresh,
     showRepoColumn,
     view = 'flat',
-    computeKindFilter,
-    storageKindFilter,
+    kindFilter,
   } = props;
   const parentRef = React.useRef<HTMLDivElement | null>(null);
   const count = Object.keys(groups).length;
@@ -99,8 +96,7 @@ export const VirtualizedAssetTable = (props: Props) => {
                 checked={checkedDisplayKeys.has(row.displayKey)}
                 onToggleChecked={onToggleFactory(row.displayKey)}
                 onRefresh={onRefresh}
-                computeKindFilter={computeKindFilter}
-                storageKindFilter={storageKindFilter}
+                kindFilter={kindFilter}
               />
             );
           })}

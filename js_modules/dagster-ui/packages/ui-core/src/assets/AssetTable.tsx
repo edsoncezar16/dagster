@@ -42,6 +42,7 @@ interface Props {
   isFiltered: boolean;
   computeKindFilter?: StaticSetFilter<string>;
   storageKindFilter?: StaticSetFilter<DefinitionTag>;
+  kindFilter?: StaticSetFilter<string>;
 }
 
 export const AssetTable = ({
@@ -54,8 +55,7 @@ export const AssetTable = ({
   searchPath,
   isFiltered,
   view,
-  computeKindFilter,
-  storageKindFilter,
+  kindFilter,
 }: Props) => {
   const groupedByDisplayKey = useMemo(
     () => groupBy(assets, (a) => JSON.stringify(displayPathForAsset(a))),
@@ -140,8 +140,7 @@ export const AssetTable = ({
         onRefresh={() => refreshState.refetch()}
         showRepoColumn
         view={view}
-        computeKindFilter={computeKindFilter}
-        storageKindFilter={storageKindFilter}
+        kindFilter={kindFilter}
       />
     );
   };

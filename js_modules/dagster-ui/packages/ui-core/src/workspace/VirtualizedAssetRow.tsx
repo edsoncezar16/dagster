@@ -21,12 +21,8 @@ import {StaleReasonsLabel} from '../assets/Stale';
 import {assetDetailsPathForKey} from '../assets/assetDetailsPathForKey';
 import {AssetTableDefinitionFragment} from '../assets/types/AssetTableFragment.types';
 import {AssetViewType} from '../assets/useAssetView';
-import {
-  AssetComputeKindTag,
-  AssetStorageKindTag,
-  isCanonicalStorageKindTag,
-} from '../graph/KindTags';
-import {AssetKeyInput, DefinitionTag} from '../graphql/types';
+import {AssetKind, isCanonicalStorageKindTag} from '../graph/KindTags';
+import {AssetKeyInput} from '../graphql/types';
 import {RepositoryLink} from '../nav/RepositoryLink';
 import {useBlockTraceOnQueryResult} from '../performance/TraceContext';
 import {TimestampDisplay} from '../schedules/TimestampDisplay';
@@ -51,8 +47,7 @@ interface AssetRowProps {
   height: number;
   start: number;
   onRefresh: () => void;
-  computeKindFilter?: StaticSetFilter<string>;
-  storageKindFilter?: StaticSetFilter<DefinitionTag>;
+  kindFilter?: StaticSetFilter<string>;
 }
 
 export const VirtualizedAssetRow = (props: AssetRowProps) => {
@@ -69,8 +64,7 @@ export const VirtualizedAssetRow = (props: AssetRowProps) => {
     showCheckboxColumn = false,
     showRepoColumn,
     view = 'flat',
-    computeKindFilter,
-    storageKindFilter,
+    kindFilter,
   } = props;
 
   const liveData = useLiveDataOrLatestMaterializationDebounced(path, type);
@@ -91,6 +85,7 @@ export const VirtualizedAssetRow = (props: AssetRowProps) => {
   };
 
   const storageKindTag = definition?.tags.find(isCanonicalStorageKindTag);
+  const kinds = definition?.kinds;
 
   return (
     <Row $height={height} $start={start} data-testid={testId(`row-${tokenForAssetKey({path})}`)}>
@@ -111,23 +106,19 @@ export const VirtualizedAssetRow = (props: AssetRowProps) => {
                 textStyle="middle-truncate"
               />
             </div>
-            {definition && (
-              <AssetComputeKindTag
-                reduceColor
-                reduceText
-                definition={definition}
-                style={{position: 'relative'}}
-                currentPageFilter={computeKindFilter}
-              />
-            )}
-            {storageKindTag && (
-              <AssetStorageKindTag
-                reduceColor
-                reduceText
-                storageKind={storageKindTag.value}
-                style={{position: 'relative'}}
-                currentPageFilter={storageKindFilter}
-              />
+            {kinds && (
+              <>
+                {kinds?.map((kind) => (
+                  <AssetKind
+                    key={kind}
+                    reduceColor
+                    reduceText
+                    kind={kind}
+                    style={{position: 'relative'}}
+                    currentPageFilter={kindFilter}
+                  />
+                ))}
+              </>
             )}
           </Box>
           <div
