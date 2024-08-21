@@ -1,11 +1,20 @@
+from datetime import datetime, timedelta
 from typing import Dict, Optional, Tuple
 
 import polars as pl
 import polars.testing as pl_testing
 from dagster import (
     AssetExecutionContext,
+    AssetIn,
+    DailyPartitionsDefinition,
+    DimensionPartitionMapping,
+    IdentityPartitionMapping,
+    MultiPartitionKey,
+    MultiPartitionMapping,
+    MultiPartitionsDefinition,
     OpExecutionContext,
     StaticPartitionsDefinition,
+    TimeWindowPartitionMapping,
     asset,
     materialize,
 )
@@ -240,4 +249,58 @@ def test_polars_upath_io_manager_output_optional_lazy(
 
     materialize(
         [upstream, downstream],
+    )
+
+
+def test_upath_io_manager_multi_partitions_definition_load_multiple_partitions(
+    io_manager_and_lazy_df: Tuple[BasePolarsUPathIOManager, pl.LazyFrame],
+):
+    io_manager_def, df = io_manager_and_lazy_df
+
+    today = datetime.now().date()
+
+    partitions_def = MultiPartitionsDefinition(
+        {
+            "time": DailyPartitionsDefinition(start_date=str(today - timedelta(days=3))),
+            "static": StaticPartitionsDefinition(["a"]),
+        }
+    )
+
+    @asset(partitions_def=partitions_def, io_manager_def=io_manager_def)
+    def upstream(context: AssetExecutionContext) -> pl.LazyFrame:
+        return pl.LazyFrame({"partition": [str(context.partition_key)]})
+
+    # this asset will request 2 upstream partitions
+    @asset(
+        io_manager_def=io_manager_def,
+        partitions_def=partitions_def,
+        ins={
+            "upstream": AssetIn(
+                partition_mapping=MultiPartitionMapping(
+                    {
+                        "time": DimensionPartitionMapping(
+                            "time", TimeWindowPartitionMapping(start_offset=-1)
+                        ),
+                        "static": DimensionPartitionMapping("static", IdentityPartitionMapping()),
+                    }
+                )
+            )
+        },
+    )
+    def downstream(context: AssetExecutionContext, upstream: LazyFramePartitions) -> None:
+        assert len(upstream.values()) == 2
+
+    materialize(
+        [upstream],
+        partition_key=MultiPartitionKey({"time": str(today - timedelta(days=3)), "static": "a"}),
+    )
+    materialize(
+        [upstream],
+        partition_key=MultiPartitionKey({"time": str(today - timedelta(days=2)), "static": "a"}),
+    )
+    # materialize([upstream], partition_key=MultiPartitionKey({"time": str(today - timedelta(days=1)), "static": "a"}))
+
+    materialize(
+        [upstream.to_source_asset(), downstream],
+        partition_key=MultiPartitionKey({"time": str(today - timedelta(days=2)), "static": "a"}),
     )

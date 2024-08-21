@@ -7,7 +7,6 @@ from typing import (
     Dict,
     Generic,
     Mapping,
-    Type,
     TypeVar,
     Union,
     get_args,
@@ -21,14 +20,6 @@ else:
 
 import polars as pl
 from dagster import InputContext, OutputContext
-
-try:
-    import pandera
-
-    PANDERA_INSTALLED = True
-except ImportError:
-    PANDERA_INSTALLED = False
-
 
 if TYPE_CHECKING:
     from upath import UPath
@@ -45,7 +36,9 @@ F_L: TypeAlias = Callable[["UPath", InputContext], T]
 
 
 class BaseTypeRouter(Generic[T]):
-    """Specifies how to apply a given dump/load operation to a given type annotation."""
+    """Specifies how to apply a given dump/load operation to a given type annotation.
+    This base class trivially calls the dump/load functions if the type matches the most simple cases.
+    """
 
     def __init__(self, context: Union[InputContext, OutputContext], typing_type: Any):
         self.context = context
@@ -99,9 +92,7 @@ class BaseTypeRouter(Generic[T]):
 
 
 class TypeRouter(BaseTypeRouter, Generic[T]):
-    """Specifies how to apply a given dump/load operation to a given type annotation.
-    This base class trivially calls the dump/load functions if the type matches the most simple cases.
-    """
+    """Handles most common standard types."""
 
     def match(self) -> bool:
         return self.typing_type in [
@@ -161,50 +152,11 @@ class DictTypeRouter(BaseTypeRouter, Generic[T]):
         return get_args(self.typing_type)[1]
 
 
-class PanderaTypeRouter(BaseTypeRouter, Generic[T]):
-    """Handles loading Pandera DataFrames."""
-
-    def match(self) -> bool:
-        raise NotImplementedError("Generic types are not supported by Dagster type system. See https://github.com/dagster-io/dagster/issues/22694")
-
-        try:
-            import pandera
-            import pandera.typing.polars
-
-            return get_origin(self.typing_type) in [
-                pandera.typing.polars.LazyFrame,
-                pandera.typing.polars.DataFrame,
-            ] and issubclass(get_args(self.typing_type)[0], pandera.DataFrameModel)
-        except ImportError:
-            return False
-
-    @property
-    def is_root_type(self) -> bool:
-        return True
-
-    @property
-    def pandera_schema(self) -> Type[pandera.DataFrameModel]:
-        return get_args(self.typing_type)[0]
-
-    def dump(self, obj: T, path: "UPath", dump_fn: F_D) -> None:
-        obj = self.pandera_schema.to_schema().validate(obj)
-        router = resolve_type_router(self.context, self.parent_type)
-        router.dump(obj, path, dump_fn)
-
-    def load(self, path: "UPath", load_fn: F_L) -> T:
-        router = resolve_type_router(self.context, self.parent_type)
-        obj = router.load(path, load_fn)
-        return self.pandera_schema.to_schema().validate(obj)
-
-
 TYPE_ROUTERS = [
     TypeRouter,
     OptionalTypeRouter,
     DictTypeRouter,
 ]
-
-if PANDERA_INSTALLED:
-    TYPE_ROUTERS.insert(0, PanderaTypeRouter)  # make sure to add before the base TypeRouter
 
 
 def resolve_type_router(

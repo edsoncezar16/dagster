@@ -188,7 +188,11 @@ def test_polars_upath_io_manager_input_dict_eager_missing(
 
     @asset(io_manager_def=manager, partitions_def=StaticPartitionsDefinition(["a", "missing"]))
     def upstream(context: AssetExecutionContext) -> Optional[pl.DataFrame]:
-        return df.with_columns(pl.lit(context.partition_key).alias("partition")) if context.partition_key != "missing" else None
+        return (
+            df.with_columns(pl.lit(context.partition_key).alias("partition"))
+            if context.partition_key != "missing"
+            else None
+        )
 
     @asset(io_manager_def=manager)
     def downstream(upstream: Dict[str, Optional[pl.DataFrame]]) -> None:
