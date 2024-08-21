@@ -9,6 +9,7 @@ from dagster._core.definitions.declarative_automation.automation_condition impor
 )
 from dagster._core.definitions.partition import PartitionsDefinition
 from dagster._core.definitions.utils import validate_asset_owner
+from dagster._core.errors import DagsterInvalidDefinitionError
 from dagster._serdes.serdes import whitelist_for_serdes
 from dagster._utils.internal_init import IHasInternalInit
 
@@ -152,6 +153,9 @@ class AssetSpec(
         owners = check.opt_sequence_param(owners, "owners", of_type=str)
         for owner in owners:
             validate_asset_owner(owner, key)
+
+        if kinds is not None and len(kinds) > 2:
+            raise DagsterInvalidDefinitionError("Assets can have at most two kinds currently.")
 
         return super().__new__(
             cls,

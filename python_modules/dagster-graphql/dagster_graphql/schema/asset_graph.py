@@ -1213,14 +1213,14 @@ class GrapheneAssetNode(graphene.ObjectType):
         ]
 
     def resolve_kinds(self, _graphene_info: ResolveInfo) -> Sequence[str]:
-        kinds = {
+        if self._external_asset_node.compute_kind:
+            return [self._external_asset_node.compute_kind]
+
+        return [
             key.split("/", maxsplit=2)[-1]
             for key in (self._external_asset_node.tags or {}).keys()
             if get_definition_tag_type(key) == TagType.HIDDEN and key.startswith(KIND_PREFIX)
-        }
-        if self._external_asset_node.compute_kind:
-            kinds.add(self._external_asset_node.compute_kind)
-        return list(kinds)
+        ]
 
     def resolve_op(
         self, _graphene_info: ResolveInfo
