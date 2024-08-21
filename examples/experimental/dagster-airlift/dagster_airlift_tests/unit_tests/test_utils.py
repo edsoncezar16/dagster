@@ -1,6 +1,7 @@
 import pytest
-from dagster import AssetKey, AssetSpec, asset, multi_asset
+from dagster import AssetKey, AssetsDefinition, AssetSpec, asset, multi_asset
 from dagster._check.functions import CheckError
+from dagster_airlift.core import defs_from_task
 from dagster_airlift.core.utils import get_dag_id_from_asset, get_task_id_from_asset
 
 
@@ -145,3 +146,14 @@ def test_op_tag_name_mismatch() -> None:
 
     with pytest.raises(CheckError):
         get_task_id_from_asset(other_dag__other_task)
+
+
+def test_specs_to_tasks() -> None:
+    """Tests basic conversion of specs to tasks."""
+    specs = [AssetSpec(key=AssetKey(["1"])), AssetSpec(key=AssetKey(["2"]))]
+    assets_def = defs_from_task(task_id="task", dag_id="dag", assets=specs)
+    assert isinstance(assets_def, AssetsDefinition)
+    assert len(list(assets_def.specs)) == 2
+    assert assets_def.node_def.tags["airlift/dag_id"] == "dag"
+    assert assets_def.node_def.tags["airlift/task_id"] == "task"
+    assert assets_def.node_def.name == "dag__task"

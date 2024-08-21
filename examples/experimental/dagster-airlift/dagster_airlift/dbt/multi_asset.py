@@ -89,3 +89,23 @@ class DbtProjectDefs(DefsFactory):
                 assets=[_dbt_asset],
                 resources={"dbt": DbtCliResource(project_dir=self.project)},
             )
+
+
+def defs_from_airflow_dbt(
+    *,
+    dag_id: str,
+    task_id: str,
+    dbt_manifest: DbtManifestParam,
+    project: Optional[DbtProject] = None,
+    translator: Optional[DagsterDbtTranslator] = None,
+    select: str = "fqn:*",
+    exclude: Optional[str] = None,
+) -> Definitions:
+    return DbtProjectDefs(
+        dbt_manifest=dbt_manifest,
+        name=f"{dag_id}__{task_id}",
+        project=project,
+        translator=translator,
+        select=select,
+        exclude=exclude,
+    ).build_defs()

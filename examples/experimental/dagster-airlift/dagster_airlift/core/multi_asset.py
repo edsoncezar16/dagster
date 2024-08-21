@@ -24,3 +24,16 @@ class PythonDefs(DefsFactory):
                 self.python_fn()
 
         return Definitions(assets=[_multi_asset])
+
+
+def defs_from_python_task(
+    *,
+    task_id: str,
+    dag_id: str,
+    assets: List[AssetSpec],
+    python_fn: Optional[Callable] = None,
+    group: Optional[str] = None,
+) -> Definitions:
+    return PythonDefs(
+        specs=assets, name=f"{dag_id}__{task_id}", group=group, python_fn=python_fn
+    ).build_defs()
