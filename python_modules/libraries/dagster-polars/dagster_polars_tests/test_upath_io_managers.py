@@ -181,6 +181,31 @@ def test_polars_upath_io_manager_input_dict_eager(
     )
 
 
+def test_polars_upath_io_manager_input_dict_eager_missing(
+    io_manager_and_df: Tuple[BasePolarsUPathIOManager, pl.DataFrame],
+):
+    manager, df = io_manager_and_df
+
+    @asset(io_manager_def=manager, partitions_def=StaticPartitionsDefinition(["a", "missing"]))
+    def upstream(context: AssetExecutionContext) -> Optional[pl.DataFrame]:
+        return df.with_columns(pl.lit(context.partition_key).alias("partition")) if context.partition_key != "missing" else None
+
+    @asset(io_manager_def=manager)
+    def downstream(upstream: Dict[str, Optional[pl.DataFrame]]) -> None:
+        assert len(upstream) == 1
+        assert "a" in upstream
+
+    for partition_key in ["a"]:
+        materialize(
+            [upstream],
+            partition_key=partition_key,
+        )
+
+    materialize(
+        [upstream.to_source_asset(), downstream],
+    )
+
+
 def test_polars_upath_io_manager_input_dict_lazy(
     io_manager_and_df: Tuple[BasePolarsUPathIOManager, pl.DataFrame],
 ):
@@ -384,15 +409,3 @@ def test_upath_io_manager_multi_partitions_definition_load_multiple_partitions(
         [upstream.to_source_asset(), downstream],
         partition_key=MultiPartitionKey({"time": str(today - timedelta(days=2)), "static": "a"}),
     )
-
-
-#
-# def test_polars_upath_io_manager_pandera(
-#     io_manager_and_df: Tuple[BasePolarsUPathIOManager, pl.DataFrame],
-# ):
-#     manager, df = io_manager_and_df
-#
-#     @asset(io_manager_def=manager)
-#     def upstream() -> pl.DataFrame:
-#         return df
-#
