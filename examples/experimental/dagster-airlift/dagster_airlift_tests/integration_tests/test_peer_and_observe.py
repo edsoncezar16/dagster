@@ -29,7 +29,7 @@ from .conftest import assert_link_exists
 def test_dag_peering_and_observability(
     airflow_instance: None,
 ) -> None:
-    """Test that dags can be correctly peered from airflow, assets can be mapped to tasks and observed, 
+    """Test that dags can be correctly peered from airflow, assets can be mapped to tasks and observed,
     and metadata properties are retained from the transition.
     """
     instance = AirflowInstance(
