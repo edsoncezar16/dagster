@@ -2,8 +2,13 @@ import pytest
 from dagster import AssetMaterialization, AssetSelection, DagsterInstance, job, op
 from dagster._core.definitions.time_window_partitions import HourlyPartitionsDefinition
 
-from .base_scenario import AssetReconciliationScenario, asset_def
-from .scenarios.scenarios import ASSET_RECONCILIATION_SCENARIOS
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import (
+    AssetReconciliationScenario,
+    asset_def,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.scenarios.scenarios import (
+    ASSET_RECONCILIATION_SCENARIOS,
+)
 
 #############################
 # FAST auto materialize tests

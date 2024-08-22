@@ -10,7 +10,7 @@ from dagster import (
     TimeWindowPartitionMapping,
 )
 
-from ..base_scenario import asset_def
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import asset_def
 
 fanned_out_partitions_def = StaticPartitionsDefinition(["a_1", "a_2", "a_3"])
 one_partition_partitions_def = StaticPartitionsDefinition(["a"])

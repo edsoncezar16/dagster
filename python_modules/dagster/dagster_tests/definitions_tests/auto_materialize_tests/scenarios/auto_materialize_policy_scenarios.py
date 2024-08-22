@@ -16,7 +16,7 @@ from dagster._core.definitions.events import AssetKey
 from dagster._core.definitions.freshness_policy import FreshnessPolicy
 from dagster._time import create_datetime
 
-from ..base_scenario import (
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import (
     AssetEvaluationSpec,
     AssetReconciliationScenario,
     asset_def,
@@ -25,13 +25,15 @@ from ..base_scenario import (
     single_asset_run,
     with_auto_materialize_policy,
 )
-from .asset_graphs import (
+from dagster_tests.definitions_tests.auto_materialize_tests.scenarios.asset_graphs import (
     one_parent_starts_later_and_nonexistent_upstream_partitions_allowed,
     one_parent_starts_later_and_nonexistent_upstream_partitions_not_allowed,
 )
-from .basic_scenarios import diamond
-from .freshness_policy_scenarios import daily_to_unpartitioned
-from .partition_scenarios import (
+from dagster_tests.definitions_tests.auto_materialize_tests.scenarios.basic_scenarios import diamond
+from dagster_tests.definitions_tests.auto_materialize_tests.scenarios.freshness_policy_scenarios import (
+    daily_to_unpartitioned,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.scenarios.partition_scenarios import (
     hourly_partitions_def,
     hourly_to_daily_partitions,
     two_assets_in_sequence_one_partition,

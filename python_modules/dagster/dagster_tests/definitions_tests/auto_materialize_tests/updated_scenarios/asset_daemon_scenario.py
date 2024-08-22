@@ -42,8 +42,12 @@ from dagster._daemon.asset_daemon import (
 )
 from dagster._serdes.serdes import DeserializationError, deserialize_value, serialize_value
 
-from ..base_scenario import run_request
-from ..scenario_state import ScenarioSpec, ScenarioState, get_code_location_origin
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_state import (
+    ScenarioSpec,
+    ScenarioState,
+    get_code_location_origin,
+)
 
 
 class AssetRuleEvaluationSpec(NamedTuple):

@@ -15,7 +15,7 @@ from dagster._serdes import ConfigurableClassData
 from dagster._time import get_current_datetime
 from typing_extensions import Self
 
-from .utils.captured_log_manager import TestCapturedLogManager
+from dagster_tests.storage_tests.utils.captured_log_manager import TestCapturedLogManager
 
 
 def test_compute_log_manager_instance():

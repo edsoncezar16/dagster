@@ -1,8 +1,7 @@
 from abc import ABC
 
 from dagster._core.instance import MayHaveInstanceWeakref, T_DagsterInstance
-
-from .captured_log_manager import ComputeIOType as ComputeIOType
+from dagster._core.storage.captured_log_manager import ComputeIOType as ComputeIOType
 
 
 class ComputeLogManager(ABC, MayHaveInstanceWeakref[T_DagsterInstance]):

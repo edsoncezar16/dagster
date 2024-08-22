@@ -15,7 +15,7 @@ from dagster._core.definitions.time_window_partitions import (
 )
 from dagster._time import create_datetime
 
-from ..base_scenario import (
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import (
     AssetEvaluationSpec,
     AssetReconciliationScenario,
     asset_def,

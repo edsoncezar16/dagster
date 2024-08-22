@@ -1,9 +1,13 @@
 from dagster import AutomationCondition
 
+from dagster_tests.definitions_tests.auto_materialize_tests.asset_condition_tests.automation_condition_scenario import (
+    AutomationConditionScenarioState,
+)
 from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
-
-from ..scenario_specs import hourly_partitions_def, two_assets_in_sequence
-from .automation_condition_scenario import AutomationConditionScenarioState
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
+    hourly_partitions_def,
+    two_assets_in_sequence,
+)
 
 
 def test_on_cron_unpartitioned() -> None:

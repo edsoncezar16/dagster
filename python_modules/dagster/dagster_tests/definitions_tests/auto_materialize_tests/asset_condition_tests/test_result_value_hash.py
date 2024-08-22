@@ -6,10 +6,11 @@ from dagster import (
     DailyPartitionsDefinition,
 )
 
+from dagster_tests.definitions_tests.auto_materialize_tests.asset_condition_tests.automation_condition_scenario import (
+    AutomationConditionScenarioState,
+)
 from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
-
-from ..scenario_specs import ScenarioSpec
-from .automation_condition_scenario import AutomationConditionScenarioState
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import ScenarioSpec
 
 one_parent = ScenarioSpec(asset_specs=[AssetSpec("A"), AssetSpec("downstream", deps=["A"])])
 two_parents = ScenarioSpec(

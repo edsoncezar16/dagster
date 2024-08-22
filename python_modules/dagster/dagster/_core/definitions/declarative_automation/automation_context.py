@@ -14,6 +14,9 @@ from dagster._core.definitions.declarative_automation.automation_condition impor
     AutomationCondition,
     AutomationResult,
 )
+from dagster._core.definitions.declarative_automation.legacy.legacy_context import (
+    LegacyRuleEvaluationContext,
+)
 from dagster._core.definitions.declarative_automation.legacy.rule_condition import RuleCondition
 from dagster._core.definitions.declarative_automation.serialized_objects import (
     AutomationConditionCursor,
@@ -23,8 +26,6 @@ from dagster._core.definitions.declarative_automation.serialized_objects import 
 from dagster._core.definitions.events import AssetKeyPartitionKey
 from dagster._core.definitions.partition import PartitionsDefinition
 from dagster._time import get_current_datetime
-
-from .legacy.legacy_context import LegacyRuleEvaluationContext
 
 if TYPE_CHECKING:
     from dagster._core.definitions.base_asset_graph import BaseAssetGraph

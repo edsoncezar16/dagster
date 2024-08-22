@@ -9,7 +9,7 @@ from dagster._core.definitions.auto_materialize_rule_evaluation import (
 from dagster._core.definitions.events import AssetKey
 from dagster._time import create_datetime
 
-from ..base_scenario import (
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import (
     AssetEvaluationSpec,
     AssetReconciliationScenario,
     asset_def,
@@ -17,7 +17,10 @@ from ..base_scenario import (
     run,
     run_request,
 )
-from .partition_scenarios import hourly_partitions_def, two_partitions_partitions_def
+from dagster_tests.definitions_tests.auto_materialize_tests.scenarios.partition_scenarios import (
+    hourly_partitions_def,
+    two_partitions_partitions_def,
+)
 
 unpartitioned_downstream_of_observable_source = [
     observable_source_asset_def("source_asset"),

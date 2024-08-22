@@ -23,9 +23,10 @@ from dagster._utils.warnings import disable_dagster_warnings
 
 if TYPE_CHECKING:
     from dagster._core.definitions.auto_materialize_policy import AutoMaterializePolicy
-
-    from .automation_context import AutomationContext
-    from .operands import (
+    from dagster._core.definitions.declarative_automation.automation_context import (
+        AutomationContext,
+    )
+    from dagster._core.definitions.declarative_automation.operands import (
         CodeVersionChangedCondition,
         CronTickPassedCondition,
         FailedAutomationCondition,
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
         NewlyUpdatedCondition,
         WillBeRequestedCondition,
     )
-    from .operators import (
+    from dagster._core.definitions.declarative_automation.operators import (
         AllDepsCondition,
         AndAutomationCondition,
         AnyDepsCondition,
@@ -144,7 +145,7 @@ class AutomationCondition(ABC):
         return AutoMaterializePolicy.from_automation_condition(self)
 
     def is_rule_condition(self):
-        from .legacy import RuleCondition
+        from dagster._core.definitions.declarative_automation.legacy import RuleCondition
 
         if isinstance(self, RuleCondition):
             return True
@@ -155,7 +156,9 @@ class AutomationCondition(ABC):
         raise NotImplementedError()
 
     def __and__(self, other: "AutomationCondition") -> "AndAutomationCondition":
-        from .operators import AndAutomationCondition
+        from dagster._core.definitions.declarative_automation.operators import (
+            AndAutomationCondition,
+        )
 
         # group AndAutomationConditions together
         if isinstance(self, AndAutomationCondition):
@@ -163,7 +166,7 @@ class AutomationCondition(ABC):
         return AndAutomationCondition(operands=[self, other])
 
     def __or__(self, other: "AutomationCondition") -> "OrAutomationCondition":
-        from .operators import OrAutomationCondition
+        from dagster._core.definitions.declarative_automation.operators import OrAutomationCondition
 
         # group OrAutomationConditions together
         if isinstance(self, OrAutomationCondition):
@@ -171,7 +174,9 @@ class AutomationCondition(ABC):
         return OrAutomationCondition(operands=[self, other])
 
     def __invert__(self) -> "NotAutomationCondition":
-        from .operators import NotAutomationCondition
+        from dagster._core.definitions.declarative_automation.operators import (
+            NotAutomationCondition,
+        )
 
         return NotAutomationCondition(operand=self)
 
@@ -184,7 +189,7 @@ class AutomationCondition(ABC):
         """Returns a AutomationCondition that is true if this condition has become true since the
         last time the reference condition became true.
         """
-        from .operators import SinceCondition
+        from dagster._core.definitions.declarative_automation.operators import SinceCondition
 
         return SinceCondition(trigger_condition=self, reset_condition=reset_condition)
 
@@ -192,7 +197,7 @@ class AutomationCondition(ABC):
         """Returns a AutomationCondition that is true only on the tick that this condition goes
         from false to true for a given asset partition.
         """
-        from .operators import NewlyTrueCondition
+        from dagster._core.definitions.declarative_automation.operators import NewlyTrueCondition
 
         return NewlyTrueCondition(operand=self)
 
@@ -207,7 +212,7 @@ class AutomationCondition(ABC):
             condition (AutomationCondition): The AutomationCondition that will be evaluated against
                 this asset's dependencies.
         """
-        from .operators import AnyDepsCondition
+        from dagster._core.definitions.declarative_automation.operators import AnyDepsCondition
 
         return AnyDepsCondition(operand=condition)
 
@@ -222,7 +227,7 @@ class AutomationCondition(ABC):
             condition (AutomationCondition): The AutomationCondition that will be evaluated against
                 this asset's dependencies.
         """
-        from .operators import AllDepsCondition
+        from dagster._core.definitions.declarative_automation.operators import AllDepsCondition
 
         return AllDepsCondition(operand=condition)
 
@@ -233,7 +238,9 @@ class AutomationCondition(ABC):
         """Returns a AutomationCondition that is true for an asset partition if it has never been
         materialized or observed.
         """
-        from .operands import MissingAutomationCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            MissingAutomationCondition,
+        )
 
         return MissingAutomationCondition()
 
@@ -242,7 +249,9 @@ class AutomationCondition(ABC):
     @staticmethod
     def in_progress() -> "InProgressAutomationCondition":
         """Returns a AutomationCondition that is true for an asset partition if it is part of an in-progress run."""
-        from .operands import InProgressAutomationCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            InProgressAutomationCondition,
+        )
 
         return InProgressAutomationCondition()
 
@@ -251,7 +260,9 @@ class AutomationCondition(ABC):
     @staticmethod
     def failed() -> "FailedAutomationCondition":
         """Returns a AutomationCondition that is true for an asset partition if its latest run failed."""
-        from .operands import FailedAutomationCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            FailedAutomationCondition,
+        )
 
         return FailedAutomationCondition()
 
@@ -270,7 +281,9 @@ class AutomationCondition(ABC):
                 For example, if this is used on a daily-partitioned asset with a lookback_delta of
                 48 hours, this will return the latest two partitions.
         """
-        from .operands import InLatestTimeWindowCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            InLatestTimeWindowCondition,
+        )
 
         return InLatestTimeWindowCondition.from_lookback_delta(lookback_delta)
 
@@ -279,7 +292,9 @@ class AutomationCondition(ABC):
     @staticmethod
     def will_be_requested() -> "WillBeRequestedCondition":
         """Returns a AutomationCondition that is true for an asset partition if it will be requested this tick."""
-        from .operands import WillBeRequestedCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            WillBeRequestedCondition,
+        )
 
         return WillBeRequestedCondition()
 
@@ -288,7 +303,7 @@ class AutomationCondition(ABC):
     @staticmethod
     def newly_updated() -> "NewlyUpdatedCondition":
         """Returns a AutomationCondition that is true for an asset partition if it has been updated since the previous tick."""
-        from .operands import NewlyUpdatedCondition
+        from dagster._core.definitions.declarative_automation.operands import NewlyUpdatedCondition
 
         return NewlyUpdatedCondition()
 
@@ -297,7 +312,9 @@ class AutomationCondition(ABC):
     @staticmethod
     def newly_requested() -> "NewlyRequestedCondition":
         """Returns a AutomationCondition that is true for an asset partition if it was requested on the previous tick."""
-        from .operands import NewlyRequestedCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            NewlyRequestedCondition,
+        )
 
         return NewlyRequestedCondition()
 
@@ -308,7 +325,9 @@ class AutomationCondition(ABC):
         """Returns a AutomationCondition that is true for an asset partition if its asset's code
         version has been changed since the previous tick.
         """
-        from .operands import CodeVersionChangedCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            CodeVersionChangedCondition,
+        )
 
         return CodeVersionChangedCondition()
 
@@ -319,7 +338,9 @@ class AutomationCondition(ABC):
         cron_schedule: str, cron_timezone: str = "UTC"
     ) -> "CronTickPassedCondition":
         """Returns a AutomationCondition that is true for all asset partitions whenever a cron tick of the provided schedule is passed."""
-        from .operands import CronTickPassedCondition
+        from dagster._core.definitions.declarative_automation.operands import (
+            CronTickPassedCondition,
+        )
 
         return CronTickPassedCondition(cron_schedule=cron_schedule, cron_timezone=cron_timezone)
 
@@ -401,7 +422,9 @@ class AutomationCondition(ABC):
     @staticmethod
     def any_downstream_conditions() -> "AnyDownstreamConditionsCondition":
         """Returns a condition which will represent the union of all distinct downstream conditions."""
-        from .operators import AnyDownstreamConditionsCondition
+        from dagster._core.definitions.declarative_automation.operators import (
+            AnyDownstreamConditionsCondition,
+        )
 
         return AnyDownstreamConditionsCondition()
 

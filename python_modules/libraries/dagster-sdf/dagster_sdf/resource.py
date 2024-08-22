@@ -9,15 +9,15 @@ from dagster._annotations import experimental, public
 from dagster._utils.warnings import suppress_dagster_warnings
 from pydantic import Field, validator
 
-from .constants import (
+from dagster_sdf.constants import (
     DEFAULT_SDF_WORKSPACE_ENVIRONMENT,
     SDF_DAGSTER_OUTPUT_DIR,
     SDF_EXECUTABLE,
     SDF_WORKSPACE_YML,
 )
-from .dagster_sdf_translator import DagsterSdfTranslator, validate_opt_translator
-from .sdf_cli_invocation import SdfCliInvocation
-from .sdf_workspace import SdfWorkspace
+from dagster_sdf.dagster_sdf_translator import DagsterSdfTranslator, validate_opt_translator
+from dagster_sdf.sdf_cli_invocation import SdfCliInvocation
+from dagster_sdf.sdf_workspace import SdfWorkspace
 
 
 @suppress_dagster_warnings

@@ -4,13 +4,15 @@ from dagster import AutomationCondition
 from dagster._core.definitions.asset_key import AssetKey
 from dagster._core.definitions.events import AssetKeyPartitionKey
 
-from ..scenario_specs import (
+from dagster_tests.definitions_tests.auto_materialize_tests.asset_condition_tests.automation_condition_scenario import (
+    AutomationConditionScenarioState,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
     daily_partitions_def,
     one_asset,
     time_partitions_start_datetime,
     two_partitions_def,
 )
-from .automation_condition_scenario import AutomationConditionScenarioState
 
 
 def test_in_latest_time_window_unpartitioned() -> None:

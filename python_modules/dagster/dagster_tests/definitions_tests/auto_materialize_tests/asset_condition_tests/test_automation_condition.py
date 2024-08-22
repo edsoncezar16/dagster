@@ -3,14 +3,16 @@ from dagster._core.remote_representation.external_data import external_repositor
 from dagster._serdes import serialize_value
 from dagster._serdes.serdes import deserialize_value
 
-from ..base_scenario import run_request
-from ..scenario_specs import (
+from dagster_tests.definitions_tests.auto_materialize_tests.asset_condition_tests.automation_condition_scenario import (
+    AutomationConditionScenarioState,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
     daily_partitions_def,
     day_partition_key,
     one_asset,
     time_partitions_start_datetime,
 )
-from .automation_condition_scenario import AutomationConditionScenarioState
 
 
 def test_missing_unpartitioned() -> None:

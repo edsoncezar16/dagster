@@ -5,8 +5,15 @@ from typing import AbstractSet, Dict, FrozenSet, NamedTuple, Optional, Sequence,
 
 import dagster._check as check
 from dagster._core.definitions.asset_subset import AssetSubset
+from dagster._core.definitions.declarative_automation.serialized_objects import (
+    AssetSubsetWithMetadata,
+    AutomationConditionEvaluation,
+    AutomationConditionEvaluationWithRunIds,
+    AutomationConditionSnapshot,
+)
 from dagster._core.definitions.events import AssetKey
 from dagster._core.definitions.metadata import MetadataMapping, MetadataValue
+from dagster._core.definitions.partition import PartitionsDefinition, SerializedPartitionsSubset
 from dagster._serdes.serdes import (
     _WHITELIST_MAP,
     NamedTupleSerializer,
@@ -18,14 +25,6 @@ from dagster._serdes.serdes import (
     whitelist_for_serdes,
 )
 from dagster._utils.security import non_secure_md5_hash_str
-
-from .declarative_automation.serialized_objects import (
-    AssetSubsetWithMetadata,
-    AutomationConditionEvaluation,
-    AutomationConditionEvaluationWithRunIds,
-    AutomationConditionSnapshot,
-)
-from .partition import PartitionsDefinition, SerializedPartitionsSubset
 
 
 @whitelist_for_serdes
@@ -134,7 +133,9 @@ def deserialize_auto_materialize_asset_evaluation_to_asset_condition_evaluation_
     """Provides a backcompat layer to allow deserializing old AutoMaterializeAssetEvaluation
     objects into the new AutomationConditionEvaluationWithRunIds objects.
     """
-    from .declarative_automation.serialized_objects import AutomationConditionEvaluationWithRunIds
+    from dagster._core.definitions.declarative_automation.serialized_objects import (
+        AutomationConditionEvaluationWithRunIds,
+    )
 
     class BackcompatDeserializer(BackcompatAutoMaterializeAssetEvaluationSerializer):
         @property
@@ -200,8 +201,12 @@ class BackcompatAutoMaterializeAssetEvaluationSerializer(NamedTupleSerializer):
     def _asset_condition_snapshot_from_rule_snapshot(
         self, rule_snapshot: AutoMaterializeRuleSnapshot
     ) -> "AutomationConditionSnapshot":
-        from .declarative_automation.legacy.rule_condition import RuleCondition
-        from .declarative_automation.serialized_objects import AutomationConditionSnapshot
+        from dagster._core.definitions.declarative_automation.legacy.rule_condition import (
+            RuleCondition,
+        )
+        from dagster._core.definitions.declarative_automation.serialized_objects import (
+            AutomationConditionSnapshot,
+        )
 
         unique_id_parts = [rule_snapshot.class_name, rule_snapshot.description]
         unique_id = non_secure_md5_hash_str("".join(unique_id_parts).encode())
@@ -221,7 +226,9 @@ class BackcompatAutoMaterializeAssetEvaluationSerializer(NamedTupleSerializer):
         is_partitioned: bool,
         rule_snapshot: AutoMaterializeRuleSnapshot,
     ) -> "AutomationConditionEvaluation":
-        from .declarative_automation.serialized_objects import HistoricalAllPartitionsSubsetSentinel
+        from dagster._core.definitions.declarative_automation.serialized_objects import (
+            HistoricalAllPartitionsSubsetSentinel,
+        )
 
         condition_snapshot = self._asset_condition_snapshot_from_rule_snapshot(rule_snapshot)
 
@@ -262,11 +269,13 @@ class BackcompatAutoMaterializeAssetEvaluationSerializer(NamedTupleSerializer):
         is_partitioned: bool,
         decision_type: AutoMaterializeDecisionType,
     ) -> Optional["AutomationConditionEvaluation"]:
-        from .declarative_automation.operators.boolean_operators import (
+        from dagster._core.definitions.declarative_automation.operators.boolean_operators import (
             NotAutomationCondition,
             OrAutomationCondition,
         )
-        from .declarative_automation.serialized_objects import HistoricalAllPartitionsSubsetSentinel
+        from dagster._core.definitions.declarative_automation.serialized_objects import (
+            HistoricalAllPartitionsSubsetSentinel,
+        )
 
         partition_subsets_by_condition_by_rule_snapshot = defaultdict(list)
         for elt in partition_subsets_by_condition:
@@ -353,8 +362,12 @@ class BackcompatAutoMaterializeAssetEvaluationSerializer(NamedTupleSerializer):
         whitelist_map: WhitelistMap,
         context: UnpackContext,
     ) -> "AutomationConditionEvaluationWithRunIds":
-        from .declarative_automation.operators.boolean_operators import AndAutomationCondition
-        from .declarative_automation.serialized_objects import HistoricalAllPartitionsSubsetSentinel
+        from dagster._core.definitions.declarative_automation.operators.boolean_operators import (
+            AndAutomationCondition,
+        )
+        from dagster._core.definitions.declarative_automation.serialized_objects import (
+            HistoricalAllPartitionsSubsetSentinel,
+        )
 
         asset_key = cast(AssetKey, unpacked_dict.get("asset_key"))
         partition_subsets_by_condition = cast(
@@ -451,8 +464,10 @@ class BackcompatAutoMaterializeConditionSerializer(NamedTupleSerializer):
         whitelist_map: WhitelistMap,
         context: UnpackContext,
     ) -> AutoMaterializeRuleEvaluation:
-        from .auto_materialize_rule import AutoMaterializeRule
-        from .auto_materialize_rule_impls import DiscardOnMaxMaterializationsExceededRule
+        from dagster._core.definitions.auto_materialize_rule import AutoMaterializeRule
+        from dagster._core.definitions.auto_materialize_rule_impls import (
+            DiscardOnMaxMaterializationsExceededRule,
+        )
 
         if self.klass in (
             FreshnessAutoMaterializeCondition,

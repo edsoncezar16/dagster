@@ -3,8 +3,8 @@ from dagster import AutoMaterializePolicy, AutoMaterializeRule
 from dagster._check import ParameterCheckError
 from dagster._core.definitions.auto_materialize_rule_impls import WaitingOnAssetsRuleEvaluationData
 
-from ..base_scenario import run_request
-from ..scenario_specs import (
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
     daily_partitions_def,
     dynamic_partitions_def,
     hour_partition_key,
@@ -15,7 +15,10 @@ from ..scenario_specs import (
     time_partitions_start_str,
     two_partitions_def,
 )
-from .asset_daemon_scenario import AssetDaemonScenario, AssetRuleEvaluationSpec
+from dagster_tests.definitions_tests.auto_materialize_tests.updated_scenarios.asset_daemon_scenario import (
+    AssetDaemonScenario,
+    AssetRuleEvaluationSpec,
+)
 
 
 def get_cron_policy(

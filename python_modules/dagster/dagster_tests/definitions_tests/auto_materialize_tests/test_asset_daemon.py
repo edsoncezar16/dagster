@@ -47,26 +47,32 @@ from dagster._daemon.asset_daemon import (
 from dagster._serdes.serdes import deserialize_value, serialize_value
 from dagster._time import get_current_datetime
 
-from dagster_tests.definitions_tests.auto_materialize_tests.scenario_state import (
-    ScenarioSpec,
-    get_code_location_origin,
-)
-
-from .base_scenario import run_request
-from .scenario_specs import (
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
     one_asset,
     one_upstream_observable_asset,
     two_assets_in_sequence,
     two_partitions_def,
 )
-from .updated_scenarios.asset_daemon_scenario import AssetDaemonScenario, AssetRuleEvaluationSpec
-from .updated_scenarios.basic_scenarios import basic_scenarios
-from .updated_scenarios.cron_scenarios import (
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_state import (
+    ScenarioSpec,
+    get_code_location_origin,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.updated_scenarios.asset_daemon_scenario import (
+    AssetDaemonScenario,
+    AssetRuleEvaluationSpec,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.updated_scenarios.basic_scenarios import (
+    basic_scenarios,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.updated_scenarios.cron_scenarios import (
     basic_hourly_cron_rule,
     basic_hourly_cron_schedule,
     get_cron_policy,
 )
-from .updated_scenarios.partition_scenarios import partition_scenarios
+from dagster_tests.definitions_tests.auto_materialize_tests.updated_scenarios.partition_scenarios import (
+    partition_scenarios,
+)
 
 
 @contextmanager

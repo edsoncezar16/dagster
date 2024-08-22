@@ -6,8 +6,7 @@ from dagster._core.definitions.asset_key import AssetKey
 from dagster._core.definitions.time_window_partitions import TimeWindow
 
 from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
-
-from ..scenario_specs import (
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
     daily_partitions_def,
     hourly_partitions_def,
     two_assets_depend_on_one,
@@ -15,8 +14,12 @@ from ..scenario_specs import (
     two_disconnected_graphs,
     two_partitions_def,
 )
-from ..test_asset_daemon import get_daemon_instance
-from ..updated_scenarios.asset_daemon_scenario import AssetDaemonScenarioState
+from dagster_tests.definitions_tests.auto_materialize_tests.test_asset_daemon import (
+    get_daemon_instance,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.updated_scenarios.asset_daemon_scenario import (
+    AssetDaemonScenarioState,
+)
 
 
 @mock.patch(

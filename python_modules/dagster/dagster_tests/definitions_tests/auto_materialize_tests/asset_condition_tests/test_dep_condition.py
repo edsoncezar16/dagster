@@ -11,11 +11,15 @@ from dagster._core.definitions.declarative_automation.automation_condition impor
 from dagster._core.definitions.declarative_automation.automation_context import AutomationContext
 from dagster._core.definitions.events import AssetKeyPartitionKey
 
+from dagster_tests.definitions_tests.auto_materialize_tests.asset_condition_tests.automation_condition_scenario import (
+    AutomationConditionScenarioState,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.base_scenario import run_request
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
+    one_asset_depends_on_two,
+    two_partitions_def,
+)
 from dagster_tests.definitions_tests.auto_materialize_tests.scenario_state import ScenarioSpec
-
-from ..base_scenario import run_request
-from ..scenario_specs import one_asset_depends_on_two, two_partitions_def
-from .automation_condition_scenario import AutomationConditionScenarioState
 
 
 def get_hardcoded_condition():

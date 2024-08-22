@@ -20,7 +20,10 @@ from dagster._daemon.sensor import execute_sensor_iteration
 from dagster._serdes.serdes import deserialize_value, serialize_value
 from dagster._utils import file_relative_path
 
-from .user_space_ds_defs import downstream, upstream
+from dagster_tests.definitions_tests.auto_materialize_tests.user_space_ds_defs import (
+    downstream,
+    upstream,
+)
 
 
 class AutomationTickResult(NamedTuple):

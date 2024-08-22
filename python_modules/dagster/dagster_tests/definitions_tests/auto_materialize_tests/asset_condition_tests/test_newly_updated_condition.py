@@ -1,7 +1,12 @@
 from dagster import AutomationCondition
 
-from ..scenario_specs import one_asset, one_upstream_observable_asset
-from .automation_condition_scenario import AutomationConditionScenarioState
+from dagster_tests.definitions_tests.auto_materialize_tests.asset_condition_tests.automation_condition_scenario import (
+    AutomationConditionScenarioState,
+)
+from dagster_tests.definitions_tests.auto_materialize_tests.scenario_specs import (
+    one_asset,
+    one_upstream_observable_asset,
+)
 
 
 def test_newly_updated_condition() -> None:

@@ -10,9 +10,9 @@ from dagster import (
 )
 from dagster._annotations import public
 
-from .asset_utils import dagster_name_fn
-from .dagster_sdf_translator import DagsterSdfTranslator
-from .sdf_event_iterator import SdfDagsterEventType
+from dagster_sdf.asset_utils import dagster_name_fn
+from dagster_sdf.dagster_sdf_translator import DagsterSdfTranslator
+from dagster_sdf.sdf_event_iterator import SdfDagsterEventType
 
 
 @dataclass
