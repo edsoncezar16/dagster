@@ -251,6 +251,7 @@ def _table_reader(table_slice: TableSlice, connection: TableConnection) -> ds.Da
         partition_filters = partition_dimensions_to_dnf(
             partition_dimensions=table_slice.partition_dimensions,
             table_schema=table.schema(),
+            str_values=True # otherwise makes undue comparison in pyarrow
         )
         if partition_filters is not None:
             partition_expr = _filters_to_expression([partition_filters])
